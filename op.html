@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f0f0f0; /* Light gray background */
+        }
+
+        #quiz-container {
+            background-color: #ffffff; /* White background for the quiz container */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Light shadow for a card-like appearance */
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        select, button {
+            margin-top: 10px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        /* Add more styling if needed */
+    </style>
+</head>
+<body>
+    <div>
+        <label for="setSelector">Select Quiz Set:</label>
+        <select id="setSelector">
+            <option value="0">Set A</option>
+            <option value="1">Set B</option>
+            <option value="2">Set C</option>
+        </select>
+        <button onclick="startSelectedQuiz()">Start Quiz</button>
+    </div>
+    <div id="quiz-container">
+        <!-- Quiz content will be dynamically inserted here -->
+    </div>
+
+    <script>
+        // JavaScript code for quiz logic
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedSetIndex;
+        let questions;
+
+        const allQuestions = [
+            // Populate with your questions and answers
+            {
+                questionText: "1+2?",
+                options: ["3", "4", "5", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "4+5?",
+                options: ["9", "10", "5", "6"],
+                correctOption: 1
+            },
+            {
+                questionText: "5+5?",
+                options: ["9", "10", "5", "6"],
+                correctOption: 2
+            },
+            {
+                questionText: "6+5?",
+                options: ["9", "10", "11", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "40+5?",
+                options: ["9", "45", "5", "6"],
+                correctOption: 2
+            },
+            {
+                questionText: "4+0?",
+                options: ["1", "10", "5", "6"],
+                correctOption: 1
+            },
+            {
+                questionText: "4+50?",
+                options: ["9", "10", "54", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "80+5?",
+                options: ["9", "10", "85", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "49+5?",
+                options: ["9", "10", "5", "54"],
+                correctOption: 4
+            },
+            {
+                questionText: "40+50?",
+                options: ["90", "10", "5", "6"],
+                correctOption: 1
+            },
+            {
+                questionText: "4+9?",
+                options: ["9", "13", "5", "6"],
+                correctOption: 2
+            },
+            {
+                questionText: "4+500?",
+                options: ["9", "10", "504", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "49+1?",
+                options: ["9", "10", "50", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "4+5000?",
+                options: ["9", "10", "5004", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "4+53?",
+                options: ["9", "10", "57", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "40+500?",
+                options: ["9", "10", "540", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "400+501?",
+                options: ["901", "10", "5", "6"],
+                correctOption: 1
+            },
+            {
+                questionText: "3+100?",
+                options: ["9", "10", "5", "103"],
+                correctOption: 4
+            },
+            {
+                questionText: "49+2?",
+                options: ["9", "10", "52", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "3+0?",
+                options: ["9", "10", "3", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "2+5?",
+                options: ["7", "10", "5", "6"],
+                correctOption: 1
+            },
+            {
+                questionText: "400+5?",
+                options: ["9", "10", "405", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "00+00?",
+                options: ["9", "10", "5", "0.00"],
+                correctOption: 4
+            },
+            {
+                questionText: "400+200?",
+                options: ["600", "10", "5", "6"],
+                correctOption: 1
+            },
+            {
+                questionText: "8+2?",
+                options: ["9", "10", "5", "6"],
+                correctOption: 2
+            },
+            {
+                questionText: "6+1+1?",
+                options: ["9", "10", "8", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "500+500?",
+                options: ["9", "1000", "5", "6"],
+                correctOption: 2
+            },
+            {
+                questionText: "90+20?",
+                options: ["9", "110", "5", "6"],
+                correctOption: 2
+            },
+            {
+                questionText: "0+5?",
+                options: ["9", "10", "5", "6"],
+                correctOption: 3
+            },
+            {
+                questionText: "400+5+5?",
+                options: ["9", "410", "5", "6"],
+                correctOption: 2
+            },
+            // Add more questions as needed
+        ];
+
+        function startSelectedQuiz() {
+            selectedSetIndex = document.getElementById('setSelector').value;
+            startQuiz(selectedSetIndex);
+        }
+
+        function startQuiz(setIndex) {
+            currentQuestionIndex = 0;
+            score = 0;
+            questions = quizSets[setIndex];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+
+            if (question) {
+                const quizContainer = document.getElementById('quiz-container');
+                quizContainer.innerHTML = `
+                    <h3>Question ${currentQuestionIndex + 1}: ${question.questionText}</h3>
+                    <ul>${question.options.map((option, index) => `<li>${index + 1}. ${option}</li>`).join('')}</ul>
+                    <label>Your answer (1-${question.options.length}): </label>
+                    <input type="number" id="userAnswer" min="1" max="${question.options.length}">
+                    <button onclick="checkAnswer()">Submit</button>
+                `;
+            } else {
+                showResults();
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('userAnswer').value);
+            const question = questions[currentQuestionIndex];
+
+            if (userAnswer === question.correctOption) {
+                alert('Correct!');
+                score++;
+            } else {
+                alert(`Incorrect! The correct answer is: ${question.correctOption}`);
+            }
+
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function showResults() {
+            alert(`Quiz completed. Your score: ${score}/${questions.length}`);
+        }
+
+        // Shuffle the questions
+        const shuffledQuestions = allQuestions.slice().sort(() => Math.random() - 0.5);
+
+        // Ensure each set has a minimum of 10 questions
+        const setA = shuffledQuestions.slice(0, 10);
+        const setB = shuffledQuestions.slice(10, 20);
+        const setC = shuffledQuestions.slice(20, 30);
+
+        const quizSets = [setA, setB, setC];
+
+        // Call startQuiz when the page loads for Set A
+        window.onload = () => startQuiz(0);
+    </script>
+</body>
+</html>
